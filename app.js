@@ -7,8 +7,12 @@ const PunkAPIWrapper = require('punkapi-javascript-wrapper');
 const app = express();
 const punkAPI = new PunkAPIWrapper();
 
+// const randomBeer = punkAPI.getRandom();
+
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
+
+hbs.registerPartials(path.join(__dirname, 'views/partials'));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -18,8 +22,45 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Add the route handlers here:
 
+
+
 app.get('/', (req, res) => {
   res.render('index');
 });
+
+app.get('/beers', (req, res) => {
+punkAPI
+.getBeers()
+.then(function (beersFromApi) {
+  console.log('Beers from the database: ', beersFromApi);
+  res.render('beers', {beersFromApi: beersFromApi});
+})
+.catch(function (error) {
+  console.log(error);
+});
+});
+
+app.get('/beers/:details', (req, res, next) => {
+  punkAPI
+  .getBeers(req.params.details)
+  .then(function (beersFromId) {
+    res.render('details', {beersFromId: beersFromId});
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+  });
+
+app.get('/random-beer', (req, res) => {
+punkAPI
+  .getRandom()
+  .then(responseFromAPI => {
+    res.render('random-beer', {responseFromAPI: responseFromAPI});
+  })
+  .catch(function (error) {
+ console.log(error);
+  });
+});
+
 
 app.listen(3000, () => console.log('🏃‍ on port 3000'));
